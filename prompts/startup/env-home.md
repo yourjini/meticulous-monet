@@ -1,0 +1,19 @@
+# prompts/startup/env-home.md — 집에서 시작할 때
+
+- **대상**: 집 데스크탑 / 개인 노트북에서 개인 계정으로 작업.
+
+---
+
+## Claude 에게 붙여넣을 프롬프트
+
+```
+나는 지금 집(개인 기기)에서 개인 계정으로 작업할 거야.
+
+우선 이것만 확인해:
+1) `git config --global user.email` 이 개인 이메일인가?
+2) `gh auth status` 로 개인 GitHub 계정이 활성인가?
+3) 작업할 레포가 있으면 가시성(public/private)을 확인해줘.
+
+그리고 `docs/MULTI_ENV_GUIDE.md` 의 "🏠 집" 섹션 항목을 내가 스스로 체크하도록
+한 줄씩 질문해줘 (디스크 암호화, ~/.claude/ 클라우드 동기화 여부 등).
+```

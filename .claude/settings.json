@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\n\\033[1;36m[meticulous-monet]\\033[0m Claude Code 보안 원칙 저장소입니다.\\n- 먼저 /security-check 로 환경/계정/레포 가시성을 확인하세요.\\n- 신규 프로젝트는 /new-project, 기존 재개는 /startup 을 쓰세요.\\n- 커밋 전 /pre-commit-check, 배포 전 /pre-deploy-check 필수.\\n- 새 이슈 발견 시 /update-checklist <한 줄 요약> 으로 기록.\\n\\n'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "grep -Eq 'git (add[[:space:]]+(-A|--all|\\\\.)|commit[[:space:]]+[^#]*--no-verify|push[[:space:]]+[^#]*--force([^-]|$))' <<< \"$CLAUDE_TOOL_INPUT\" && { echo '[meticulous-monet] 금지된 git 플래그 감지: git add -A/. , --no-verify, --force. CLAUDE.md 원칙과 docs/SECURITY_CHECKLIST.md §5~§6 를 참고하세요. 필요하면 명시적으로 재요청하세요.' >&2; exit 2; } || exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

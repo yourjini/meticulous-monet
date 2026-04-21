@@ -1,0 +1,141 @@
+# SECURITY_CHECKLIST.md — 마스터 보안 체크리스트
+
+> **사용법**
+> - 매 세션 시작 시: [§1 Session Preflight](#1-session-preflight) 확인
+> - 신규 프로젝트 시작 시: [`NEW_PROJECT_CHECKLIST.md`](NEW_PROJECT_CHECKLIST.md) 와 함께 [§3 신규 레포](#3-신규-레포-생성-전) 확인
+> - 커밋 직전: [§5 커밋 직전](#5-커밋-직전) 확인
+> - 새 이슈 발견 시: [§9 체크리스트 갱신](#9-체크리스트-갱신-로그) 에 항목 추가
+
+---
+
+## 1. Session Preflight
+
+- [ ] 지금 접속한 **환경**을 인지하고 있다 (집 데스크탑 / 회사 노트북 / 모바일 / 태블릿 / 타인의 기기).
+- [ ] 지금 로그인된 **Claude 계정**이 개인/회사/공용 중 무엇인지 확인했다.
+- [ ] 지금 로그인된 **GitHub 계정**이 개인/회사 중 무엇인지 확인했다 (`gh auth status` / `git config user.email`).
+- [ ] 본 세션의 전사를 **타인이 볼 수 있는지 여부**를 알고 있다 (공용 계정이면 알고 쓴다).
+- [ ] 원격 접속(SSH/VSCode Remote/RDP)을 사용 중이라면 **호스트가 내 소유**인지, **세션 기록이 남는지** 알고 있다.
+
+> ❗ 하나라도 "모름"이면 지금 아무것도 `commit` / `push` 하지 않는다. 먼저 확정한다.
+
+---
+
+## 2. 기기·환경별 원칙
+
+### 2.1 집 데스크탑 / 개인 노트북
+- [ ] 디스크 암호화가 켜져 있다 (BitLocker / FileVault / LUKS).
+- [ ] 개인계정용 SSH 키와 회사계정용 SSH 키가 **분리**되어 있고 `~/.ssh/config` 에서 Host 별로 라우팅된다.
+- [ ] Claude Code 캐시 디렉토리(`~/.claude/`) 가 클라우드 백업(예: OneDrive, iCloud Drive, Dropbox)에 동기화되지 **않는다**.
+
+### 2.2 회사 데스크탑 / 회사 노트북
+- [ ] 회사 자산에는 **회사 계정**으로만 로그인한다. 개인 Claude 세션·개인 레포 토큰을 회사 기기에 심지 않는다.
+- [ ] 회사 정책상 금지된 AI 툴/모델 사용 여부를 확인했다.
+- [ ] 회사 코드/이슈/고객 데이터를 **개인 Claude 세션**에 붙여넣지 않는다.
+
+### 2.3 모바일 / 태블릿
+- [ ] 모바일에서는 **레포 기반**으로만 작업한다 (로컬 파일 참조 대신 `git clone` / 웹 UI / codespaces).
+- [ ] 세션 잠금(Face ID / 지문 / PIN)이 켜져 있다.
+- [ ] 화면 공유·미러링 중이면 자격증명 화면을 띄우지 않는다.
+
+### 2.4 타인 기기 · 공용 기기
+- [ ] 가능하면 쓰지 않는다. 써야 하면 **브라우저 시크릿 모드** + 세션 종료 후 **로그아웃·캐시 삭제**.
+- [ ] SSH 키/토큰을 이 기기에 저장하지 않는다. 단발성 personal access token을 만들고 끝나면 **revoke** 한다.
+
+---
+
+## 3. 신규 레포 생성 전
+
+- [ ] 레포는 기본적으로 **private 으로 생성**한다. public은 명시적 결정이 필요하다.
+- [ ] 어느 GitHub 조직/계정 하에 만들지 결정했다 (`personal` vs `org/company`).
+- [ ] `.gitignore` 를 **첫 커밋에 포함**한다 ([templates/gitignore.template](../templates/gitignore.template) 기준).
+- [ ] `.env.example` 만 커밋하고 `.env` 는 커밋하지 않는 구조를 확정했다.
+- [ ] 비밀값 관리 방식을 결정했다 (로컬 `.env` / 1Password / GitHub Secrets / Vault 등).
+- [ ] 첫 커밋 이전에 실험하느라 만든 **민감파일**이 워킹 트리에 없는지 `git status --ignored` 로 확인했다.
+
+자세한 순서는 [`NEW_PROJECT_CHECKLIST.md`](NEW_PROJECT_CHECKLIST.md).
+
+---
+
+## 4. 기존 레포에서 작업 재개 시
+
+- [ ] `git remote -v` 로 **원격 URL**을 확인했다 (개인/회사 계정 오염 여부).
+- [ ] 레포 가시성을 확인했다 (`gh repo view --json visibility,isPrivate` 또는 웹 UI).
+- [ ] 브랜치가 공유 브랜치인지(main, develop) 개인 브랜치인지 확인했다.
+- [ ] 이전 세션에서 남긴 **임시파일/디버깅 로그**가 워킹 트리에 남아있지 않은지 `git status` 로 확인했다.
+
+---
+
+## 5. 커밋 직전
+
+- [ ] `git status` 출력을 눈으로 훑었다.
+- [ ] `git diff --cached` 로 **스테이징된 모든 줄**을 확인했다.
+- [ ] 다음 파일이 스테이징에 포함되어 있지 **않다**:
+  - [ ] `.env`, `.env.*` (단 `.env.example` 제외)
+  - [ ] `*.pem`, `*.key`, `*.pfx`, `*.p12`
+  - [ ] `id_rsa*`, `id_ed25519*`, `id_ecdsa*`
+  - [ ] `credentials.*`, `secrets.*`, `service-account*.json`
+  - [ ] `.aws/`, `.gcloud/`, `.azure/`
+  - [ ] 개인 터미널 히스토리 / 덤프 파일 (`.bash_history`, `core.*`)
+- [ ] 다음 **리터럴 패턴**이 신규 라인에 없다:
+  - [ ] `sk-...` (OpenAI / Anthropic)
+  - [ ] `ghp_...`, `github_pat_...`
+  - [ ] `AKIA...`, `ASIA...` (AWS)
+  - [ ] `AIza...` (Google)
+  - [ ] `xox[baprs]-...` (Slack)
+  - [ ] 평문 DB URL (`postgres://user:pass@host`)
+- [ ] 개인정보 패턴을 신규 라인에서 보지 못했다 (주민번호, 전화번호, 이메일 목록, 실명+연락처 조합).
+- [ ] 1MB 초과 바이너리가 의도한 것이다 (그렇지 않으면 실수일 가능성).
+- [ ] 레포가 **public** 이라면, 위 모든 항목을 **한 번 더** 확인했다.
+
+---
+
+## 6. 푸시 직전
+
+- [ ] 푸시 대상 원격이 올바르다 (`git remote get-url origin`).
+- [ ] 푸시 대상 브랜치가 보호 브랜치가 아니거나, 보호 브랜치라면 PR 흐름을 탈 계획이다.
+- [ ] 최근 N개 커밋이 의도한 커밋이다 (`git log --oneline origin/<branch>..HEAD`).
+- [ ] `--force` / `--force-with-lease` 를 쓰는 경우, 해당 브랜치를 **다른 사람이 공유하지 않는다**.
+
+---
+
+## 7. 자격증명·비밀 관리
+
+- [ ] API 키는 환경변수 또는 비밀 관리자(Vault / 1Password / OS Keychain)에 둔다. 레포에 평문으로 두지 않는다.
+- [ ] GitHub Personal Access Token은 **fine-grained + 필요한 레포에만 + 90일 이내 만료** 로 발급한다.
+- [ ] 만료된 키 / 유출이 의심되는 키는 **즉시 revoke** 후, 신규 키로 교체한다.
+- [ ] `gitleaks` / `trufflehog` 같은 시크릿 스캐너를 로컬/ CI에서 돌린다.
+- [ ] GitHub 레포에서 Push Protection · Secret Scanning 을 켠다 (가능한 조직/계정 한정).
+
+---
+
+## 8. 사고 발생 시 (유출 의심)
+
+1. **당황하지 말고 키를 먼저 revoke** 한다. (히스토리 정리보다 우선)
+2. 해당 서비스의 사용 로그를 확인해 **오용 여부**를 본다.
+3. 레포 히스토리에서 제거해야 하면 `git filter-repo` 또는 BFG 사용. `git push --force` 는 협업자 합의 후.
+4. 이미 public으로 나간 토큰은 **정리해도 캐시/포크/인덱스에 남는다**고 가정한다.
+5. 본 레포 [§9](#9-체크리스트-갱신-로그) 에 사건과 재발방지책을 기록한다.
+
+---
+
+## 9. 체크리스트 갱신 로그
+
+새로운 이슈를 겪었거나 배운 게 있으면 아래 형식으로 **가장 위**에 추가한다.
+
+```
+### YYYY-MM-DD — <한 줄 요약>
+- 상황:
+- 영향:
+- 조치:
+- 재발방지 항목(§X.X 에 추가):
+```
+
+<!-- ENTRIES START -->
+
+### 2026-04-21 — 초기 체크리스트 정리
+- 상황: Claude Code를 다중 환경·다중 계정·공용 계정·모바일에서 혼용.
+- 영향: 로컬 폴더 참조형 작업을 레포 기반으로 옮기면서, 개인정보/토큰이 git에 섞일 위험 증가.
+- 조치: 본 레포(meticulous-monet)에 마스터 체크리스트·온보딩·slash command·hook을 정리.
+- 재발방지 항목: §1, §3, §5 를 매 세션/매 커밋 강제.
+
+<!-- ENTRIES END -->

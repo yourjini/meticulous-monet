@@ -1,0 +1,40 @@
+# 본 레포는 문서 중심이지만, 혹시 실수로 섞여 들어갈 파일을 차단한다.
+# 신규 프로젝트는 templates/gitignore.template 을 복사해서 쓸 것.
+
+# 비밀값
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+id_ecdsa*
+credentials.*
+secrets.*
+service-account*.json
+
+# 클라우드 자격증명
+.aws/
+.gcloud/
+.azure/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# 로컬 오버라이드 (사용자별 설정은 커밋하지 않음)
+.claude/settings.local.json
+.claude/.credentials.json
+
+# 임시
+*.bak
+*.tmp
+*.orig
+core.*
+*.log
