@@ -1,0 +1,45 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  pageTitle?: string;
+}
+
+const { title, description, pageTitle } = Astro.props;
+const siteTitle = 'meticulous-monet';
+const fullTitle = pageTitle ? `${pageTitle} · ${siteTitle}` : title;
+const desc =
+  description ??
+  'Claude Code를 여러 환경·여러 계정에서 안전하게 쓰기 위한 원칙·체크리스트·프롬프트·보안뉴스 웹진.';
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={desc} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteTitle} />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <div class="min-h-svh flex flex-col">
+      <Nav />
+      <main class="flex-1 mx-auto w-full max-w-3xl px-5 sm:px-6 py-10 sm:py-14">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

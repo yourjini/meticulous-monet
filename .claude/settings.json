@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "grep -Eq 'git (add[[:space:]]+(-A|--all|\\\\.)|commit[[:space:]]+[^#]*--no-verify|push[[:space:]]+[^#]*--force([^-]|$))' <<< \"$CLAUDE_TOOL_INPUT\" && { echo '[meticulous-monet] 금지된 git 플래그 감지: git add -A/. , --no-verify, --force. CLAUDE.md 원칙과 docs/SECURITY_CHECKLIST.md §5~§6 를 참고하세요. 필요하면 명시적으로 재요청하세요.' >&2; exit 2; } || exit 0"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-bad-git-flags.sh"
           }
         ]
       }

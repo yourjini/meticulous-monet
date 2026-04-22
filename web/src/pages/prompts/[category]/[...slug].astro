@@ -1,0 +1,48 @@
+---
+import { getCollection, render, type CollectionKey } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import { firstHeadingAsTitle, firstParagraphAsSummary, prettyIdToTitle } from '../../../lib/meta';
+
+const categories = [
+  { name: 'required', collection: 'prompts-required' as CollectionKey, label: '필수' },
+  { name: 'optional', collection: 'prompts-optional' as CollectionKey, label: '선택' },
+  { name: 'startup', collection: 'prompts-startup' as CollectionKey, label: '시작' },
+];
+
+export async function getStaticPaths() {
+  const categoryDefs = [
+    { name: 'required', collection: 'prompts-required', label: '필수' },
+    { name: 'optional', collection: 'prompts-optional', label: '선택' },
+    { name: 'startup', collection: 'prompts-startup', label: '시작' },
+  ] as const;
+  const paths = [];
+  for (const c of categoryDefs) {
+    const entries = await getCollection(c.collection);
+    for (const entry of entries) {
+      paths.push({
+        params: { category: c.name, slug: entry.id },
+        props: { entry, categoryLabel: c.label, categoryName: c.name },
+      });
+    }
+  }
+  return paths;
+}
+
+const { entry, categoryLabel, categoryName } = Astro.props;
+const { Content } = await render(entry);
+const title = firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id));
+const description = firstParagraphAsSummary(entry.body);
+---
+
+<Base title={`${title} · ${categoryLabel} 프롬프트`} pageTitle={title} description={description}>
+  <article>
+    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)] flex gap-2">
+      <a href="/prompts/" class="hover:text-[var(--color-ink)]">← 프롬프트</a>
+      <span aria-hidden="true">·</span>
+      <span>{categoryLabel}</span>
+    </p>
+    <div class="prose mt-4">
+      <Content />
+    </div>
+  </article>
+</Base>

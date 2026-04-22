@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { firstHeadingAsTitle, firstParagraphAsSummary, prettyIdToTitle } from '../../lib/meta';
+
+const [required, optional, startup] = await Promise.all([
+  getCollection('prompts-required'),
+  getCollection('prompts-optional'),
+  getCollection('prompts-startup'),
+]);
+
+function sort(list: typeof required) {
+  return list.slice().sort((a, b) => a.id.localeCompare(b.id));
+}
+
+const sections = [
+  {
+    key: 'required',
+    label: '필수',
+    tag: 'REQUIRED',
+    description: '매 세션·매 커밋·매 배포에 빠짐없이 돌리는 루틴.',
+    entries: sort(required),
+    base: '/prompts/required',
+  },
+  {
+    key: 'optional',
+    label: '선택',
+    tag: 'OPTIONAL',
+    description: '필요한 상황에서만 꺼내 쓰는 심화 점검용 프롬프트.',
+    entries: sort(optional),
+    base: '/prompts/optional',
+  },
+  {
+    key: 'startup',
+    label: '시작(상황별)',
+    tag: 'STARTUP',
+    description: '숙련도 × 환경(집/회사/모바일/공용) × 맥락(신규/기존) 로 골라 쓰는 세션 시작 프롬프트.',
+    entries: sort(startup),
+    base: '/prompts/startup',
+  },
+];
+---
+
+<Base title="프롬프트 · meticulous-monet" pageTitle="프롬프트">
+  <header class="pb-8">
+    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">Prompts</p>
+    <h1 class="mt-2 text-[26px] sm:text-[30px] leading-tight tracking-tight font-semibold">
+      프롬프트
+    </h1>
+    <p class="mt-3 text-[15px] text-[var(--color-muted)] leading-relaxed max-w-[62ch]">
+      Claude Code 세션에 그대로 붙여넣어 쓰는 프롬프트. 필수 / 선택 / 상황별 시작
+      세 범주로 나뉩니다.
+    </p>
+  </header>
+
+  {
+    sections.map((section) => (
+      <section class="mt-10 first:mt-0 border-t border-[var(--color-line)] pt-8 first:border-0 first:pt-0">
+        <div class="flex items-baseline justify-between gap-4 mb-1">
+          <h2 class="text-[18px] font-semibold tracking-tight">{section.label}</h2>
+          <span class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+            {section.entries.length}개
+          </span>
+        </div>
+        <p class="text-[14px] text-[var(--color-muted)] mb-4">{section.description}</p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          {section.entries.map((entry) => (
+            <EntryCard
+              href={`${section.base}/${entry.id}/`}
+              title={firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id))}
+              description={firstParagraphAsSummary(entry.body)}
+              tag={section.tag}
+            />
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</Base>

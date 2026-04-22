@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { firstHeadingAsTitle, firstParagraphAsSummary, formatDateSlug, prettyIdToTitle } from '../../lib/meta';
+
+const news = (await getCollection('news')).slice().sort((a, b) => (a.id < b.id ? 1 : -1));
+---
+
+<Base title="보안뉴스 · meticulous-monet" pageTitle="보안뉴스">
+  <header class="pb-8">
+    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">Security News</p>
+    <h1 class="mt-2 text-[26px] sm:text-[30px] leading-tight tracking-tight font-semibold">
+      오늘의 클로드 보안뉴스
+    </h1>
+    <p class="mt-3 text-[15px] text-[var(--color-muted)] leading-relaxed max-w-[62ch]">
+      Claude / AI 코딩 도구와 관련된 보안 사건·교훈을 일자별로 기록합니다.
+      추상 원칙은 잊히지만, 사례는 남습니다.
+    </p>
+  </header>
+
+  {
+    news.length === 0 && (
+      <p class="text-[var(--color-muted)]">아직 기록된 뉴스가 없습니다.</p>
+    )
+  }
+
+  <div class="grid gap-3">
+    {
+      news.map((entry) => (
+        <EntryCard
+          href={`/news/${entry.id}/`}
+          title={firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id))}
+          description={firstParagraphAsSummary(entry.body)}
+          meta={formatDateSlug(entry.id)}
+          tag="NEWS"
+        />
+      ))
+    }
+  </div>
+</Base>

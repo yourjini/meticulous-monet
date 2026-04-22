@@ -1,0 +1,31 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { firstHeadingAsTitle, firstParagraphAsSummary, formatDateSlug, prettyIdToTitle } from '../../lib/meta';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('news');
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const title = firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id));
+const date = formatDateSlug(entry.id);
+const description = firstParagraphAsSummary(entry.body);
+---
+
+<Base title={`${title} · meticulous-monet`} pageTitle={title} description={description}>
+  <article>
+    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)] flex gap-2">
+      <a href="/news/" class="hover:text-[var(--color-ink)]">← 보안뉴스</a>
+      {date && <><span aria-hidden="true">·</span><span>{date}</span></>}
+    </p>
+    <div class="prose mt-4">
+      <Content />
+    </div>
+  </article>
+</Base>

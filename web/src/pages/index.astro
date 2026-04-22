@@ -1,0 +1,156 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import EntryCard from '../components/EntryCard.astro';
+import { firstHeadingAsTitle, firstParagraphAsSummary, formatDateSlug, prettyIdToTitle } from '../lib/meta';
+
+const [checklists, news, required] = await Promise.all([
+  getCollection('checklists'),
+  getCollection('news'),
+  getCollection('prompts-required'),
+]);
+
+const sortedNews = news
+  .slice()
+  .sort((a, b) => (a.id < b.id ? 1 : -1));
+const latestNews = sortedNews[0];
+
+const featuredChecklistIds = [
+  'security_checklist',
+  'ai_code_review',
+  'new_project_checklist',
+  'multi_env_guide',
+];
+const featuredChecklists = featuredChecklistIds
+  .map((id) => checklists.find((e) => e.id.toLowerCase() === id))
+  .filter((e): e is NonNullable<typeof e> => Boolean(e));
+
+const requiredPrompts = required.slice().sort((a, b) => a.id.localeCompare(b.id));
+---
+
+<Base title="meticulous-monet — Claude Code 안전 사용 웹진">
+  <section class="pb-2">
+    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+      Claude Code · 보안 · 운영
+    </p>
+    <h1 class="mt-3 text-[28px] sm:text-[34px] leading-[1.15] tracking-tight font-semibold">
+      여러 환경 · 여러 계정에서<br class="hidden sm:block" />
+      Claude Code를 안전하게 쓰기 위한 원칙.
+    </h1>
+    <p class="mt-5 text-[15px] sm:text-base text-[var(--color-muted)] leading-relaxed max-w-[62ch]">
+      집·회사·모바일을 오가며, 개인·회사·공용 계정이 섞이는 환경에서
+      레포에 개인정보와 인증정보를 섞지 않기 위한 체크리스트, 프롬프트,
+      그리고 매일의 보안 뉴스를 한 곳에 모았습니다.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-2 text-[13px]">
+      <a
+        href="/checklists/onboarding/"
+        class="inline-flex items-center gap-2 rounded-md bg-[var(--color-ink)] text-[var(--color-paper)] px-3.5 py-2 hover:opacity-90 transition"
+      >
+        15분 온보딩 시작
+        <span aria-hidden="true">→</span>
+      </a>
+      <a
+        href="/checklists/security_checklist/"
+        class="inline-flex items-center gap-2 rounded-md border border-[var(--color-line)] px-3.5 py-2 hover:border-[var(--color-ink)] transition"
+      >
+        마스터 체크리스트
+      </a>
+    </div>
+  </section>
+
+  {
+    latestNews && (
+      <section class="mt-14 border-t border-[var(--color-line)] pt-8">
+        <div class="flex items-baseline justify-between mb-4">
+          <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)]">오늘의 보안뉴스</h2>
+          <a href="/news/" class="text-[13px] text-[var(--color-muted)] hover:text-[var(--color-ink)]">
+            모두 보기 →
+          </a>
+        </div>
+        <EntryCard
+          href={`/news/${latestNews.id}/`}
+          title={firstHeadingAsTitle(latestNews.body, prettyIdToTitle(latestNews.id))}
+          description={firstParagraphAsSummary(latestNews.body)}
+          meta={formatDateSlug(latestNews.id)}
+          tag="NEWS"
+        />
+      </section>
+    )
+  }
+
+  <section class="mt-14 border-t border-[var(--color-line)] pt-8">
+    <div class="flex items-baseline justify-between mb-4">
+      <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)]">핵심 체크리스트</h2>
+      <a href="/checklists/" class="text-[13px] text-[var(--color-muted)] hover:text-[var(--color-ink)]">
+        모두 보기 →
+      </a>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2">
+      {
+        featuredChecklists.map((entry) => (
+          <EntryCard
+            href={`/checklists/${entry.id}/`}
+            title={firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id))}
+            description={firstParagraphAsSummary(entry.body)}
+            tag="CHECKLIST"
+          />
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-14 border-t border-[var(--color-line)] pt-8">
+    <div class="flex items-baseline justify-between mb-4">
+      <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)]">매일 돌리는 필수 프롬프트</h2>
+      <a href="/prompts/" class="text-[13px] text-[var(--color-muted)] hover:text-[var(--color-ink)]">
+        모두 보기 →
+      </a>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2">
+      {
+        requiredPrompts.map((entry) => (
+          <EntryCard
+            href={`/prompts/required/${entry.id}/`}
+            title={firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id))}
+            description={firstParagraphAsSummary(entry.body)}
+            tag="REQUIRED"
+          />
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-14 border-t border-[var(--color-line)] pt-8">
+    <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)] mb-4">흐름</h2>
+    <ol class="space-y-2.5 text-[15px]">
+      <li class="flex gap-3">
+        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">01</span>
+        <span>
+          세션 시작 — <code class="font-mono text-[13.5px]">/startup</code> 또는
+          <code class="font-mono text-[13.5px]">/security-check</code> 로 환경·계정·가시성 확인
+        </span>
+      </li>
+      <li class="flex gap-3">
+        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">02</span>
+        <span>커밋 직전 — <code class="font-mono text-[13.5px]">/pre-commit-check</code></span>
+      </li>
+      <li class="flex gap-3">
+        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">03</span>
+        <span>배포 직전 — <code class="font-mono text-[13.5px]">/pre-deploy-check</code></span>
+      </li>
+      <li class="flex gap-3">
+        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">04</span>
+        <span>
+          이슈 발견 — <code class="font-mono text-[13.5px]">/update-checklist &lt;요약&gt;</code>
+        </span>
+      </li>
+      <li class="flex gap-3">
+        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">05</span>
+        <span>
+          하루 끝 — 오늘의 보안뉴스 기록 <code class="font-mono text-[13.5px]">/daily-news</code>
+        </span>
+      </li>
+    </ol>
+  </section>
+</Base>

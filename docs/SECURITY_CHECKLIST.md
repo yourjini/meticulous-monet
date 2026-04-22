@@ -132,6 +132,33 @@
 
 <!-- ENTRIES START -->
 
+### 2026-04-22 — PreToolUse 훅이 `sh` 에서 구문 에러로 모든 Bash 차단
+- 상황: `.claude/settings.json` 의 PreToolUse 훅을 inline 한 줄(`grep ... <<< "$VAR"`)로 작성.
+  실행 쉘이 `/bin/sh` 여서 here-string(`<<<`) 구문 에러가 터져 종료코드 2 반환 → 모든 Bash 도구 호출이 차단.
+- 영향: 다음 세션에서 모든 `Bash` 호출이 막혀 정상 작업이 중단됨. 보안 훅이 개발을 봉쇄한 사례.
+- 조치:
+  1. 훅 로직을 스크립트 파일로 분리 (`.claude/hooks/block-bad-git-flags.sh`, `#!/usr/bin/env bash`).
+  2. `settings.json` 은 스크립트 경로만 참조 (`$CLAUDE_PROJECT_DIR/.claude/hooks/...`).
+  3. 기존 세션이 옛 훅을 계속 잡고 있을 때는 `.claude/settings.local.json` 으로 훅 일시 해제 (gitignore됨).
+- 재발방지 항목(§? 추가):
+  - 훅 명령은 **인라인 한 줄** 대신 **스크립트 파일 + 셔뱅** 으로 작성한다.
+  - 훅 스크립트는 `sh -n`/`bash -n`/`shellcheck` 로 배포 전 구문 검증한다.
+  - 훅이 개발을 막는 상황이 생기면 **우회**보다 **훅 수정**을 우선한다.
+    (이번 건은 `settings.local.json` 으로 이번 세션만 해제하고, 원인 훅을 즉시 수정함)
+
+### 2026-04-22 — 동일 훅에서 "dot 파일" 거짓 양성
+- 상황: 위 훅 스크립트의 정규식이 `git[[:space:]]+add[[:space:]]+\.` 만으로 느슨하게 작성되어
+  `git add .claude/settings.json` 처럼 **`.` 으로 시작하는 경로**를 전부 "git add ." 로 오인 차단.
+- 영향: 정당한 다중 파일 스테이징이 모두 실패. 훅의 오탐이 실제 작업을 또 막는 재발.
+- 조치:
+  1. 정규식에 단어 경계(`([[:space:]]|$)`) 추가해 `git add .` 정확 매치만 차단.
+  2. 패턴을 하나의 긴 alternation 대신 `grep -E -e <pat> -e <pat>` 여러 줄로 분리하여 가독성 확보.
+  3. 6개 payload(ALLOW/BLOCK 혼합) 테이블 테스트로 검증.
+- 재발방지 항목:
+  - 차단 정규식은 항상 **양성·음성 케이스** 테스트 세트를 함께 두고 추가/수정한다.
+  - 특히 `.env`, `.claude`, `.gitignore`, `.github/` 처럼 dot 시작 경로는 흔하므로,
+    `\.` 리터럴 매치 뒤에는 반드시 `([[:space:]]|$)` 경계를 붙인다.
+
 ### 2026-04-21 — 초기 체크리스트 정리
 - 상황: Claude Code를 다중 환경·다중 계정·공용 계정·모바일에서 혼용.
 - 영향: 로컬 폴더 참조형 작업을 레포 기반으로 옮기면서, 개인정보/토큰이 git에 섞일 위험 증가.
