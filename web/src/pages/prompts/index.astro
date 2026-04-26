@@ -18,7 +18,6 @@ const sections = [
   {
     key: 'required',
     label: '필수',
-    tag: 'REQUIRED',
     description: '매 세션·매 커밋·매 배포에 빠짐없이 돌리는 루틴.',
     entries: sort(required),
     base: '/prompts/required',
@@ -26,7 +25,6 @@ const sections = [
   {
     key: 'optional',
     label: '선택',
-    tag: 'OPTIONAL',
     description: '필요한 상황에서만 꺼내 쓰는 심화 점검용 프롬프트.',
     entries: sort(optional),
     base: '/prompts/optional',
@@ -34,12 +32,16 @@ const sections = [
   {
     key: 'startup',
     label: '시작(상황별)',
-    tag: 'STARTUP',
     description: '숙련도 × 환경(집/회사/모바일/공용) × 맥락(신규/기존) 로 골라 쓰는 세션 시작 프롬프트.',
     entries: sort(startup),
     base: '/prompts/startup',
   },
 ];
+
+function stripPathPrefix(title: string): string {
+  const idx = title.indexOf(' — ');
+  return idx >= 0 ? title.slice(idx + 3).trim() : title;
+}
 ---
 
 <Base title="프롬프트 · meticulous-monet" pageTitle="프롬프트">
@@ -64,13 +66,15 @@ const sections = [
           </span>
         </div>
         <p class="text-[14px] text-[var(--color-muted)] mb-4">{section.description}</p>
-        <div class="grid gap-3 sm:grid-cols-2">
+        <div
+          class="prompt-row"
+          style={`--cols: ${section.entries.length}`}
+        >
           {section.entries.map((entry) => (
             <EntryCard
               href={`${section.base}/${entry.id}/`}
-              title={firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id))}
+              title={stripPathPrefix(firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id)))}
               description={firstParagraphAsSummary(entry.body)}
-              tag={section.tag}
             />
           ))}
         </div>
@@ -78,3 +82,16 @@ const sections = [
     ))
   }
 </Base>
+
+<style>
+  .prompt-row {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .prompt-row {
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    }
+  }
+</style>
