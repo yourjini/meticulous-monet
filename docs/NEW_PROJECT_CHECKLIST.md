@@ -91,6 +91,7 @@
    - Secret scanning · Push protection 활성화
    - 기본 브랜치 보호 (직접 푸시 금지, PR 필수)
    - Dependabot / CodeQL (해당되는 경우)
+   - 자세한 설정값은 [`REPO_HARDENING.md`](REPO_HARDENING.md) 참조 (한 번 세팅 레시피)
 10. 첫 푸시: `git push -u origin main`
 
 ---

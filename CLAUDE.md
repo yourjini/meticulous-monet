@@ -82,6 +82,7 @@
 
 - [docs/SECURITY_CHECKLIST.md](docs/SECURITY_CHECKLIST.md) — 마스터 체크리스트
 - [docs/NEW_PROJECT_CHECKLIST.md](docs/NEW_PROJECT_CHECKLIST.md) — 신규 프로젝트
+- [docs/REPO_HARDENING.md](docs/REPO_HARDENING.md) — 신규 레포 보안 강화 레시피 (한 번 세팅)
 - [docs/MULTI_ENV_GUIDE.md](docs/MULTI_ENV_GUIDE.md) — 다중 환경/계정
 - [docs/ONBOARDING.md](docs/ONBOARDING.md) — 교육용 온보딩
 - [prompts/pre-work.md](prompts/pre-work.md)
