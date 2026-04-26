@@ -23,15 +23,41 @@
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
     font-feature-settings: "ss01", "cv11";
+    background: var(--color-paper);
   }
 
   body {
-    background: var(--color-paper);
+    background: transparent;
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* "엄격한 클로드모네" — 루앙 대성당 연작 등 모네 그림을 배경으로 깔기 위한 레이어.
+     web/public/monet-bg.jpg 가 있으면 보이고, 없으면 빈 페이퍼 색만 보임.
+     본문 가독성을 위해 매우 낮은 opacity + 채도 낮춤. */
+  .monet-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: url('/monet-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.09;
+    filter: grayscale(0.35) contrast(0.95);
+    pointer-events: none;
+  }
+  @media (max-width: 640px) {
+    .monet-bg { opacity: 0.06; }
+  }
+  @media (prefers-color-scheme: dark) {
+    .monet-bg {
+      opacity: 0.06;
+      filter: grayscale(0.5) brightness(0.8);
+    }
   }
 
   a {
