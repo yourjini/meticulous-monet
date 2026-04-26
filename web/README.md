@@ -1,6 +1,6 @@
 # web/ — meticulous-monet 웹진
 
-> 이 레포의 `docs/`, `prompts/`, `docs/SECURITY_NEWS/` 마크다운을
+> 이 레포의 `docs/`, `prompts/` 마크다운을
 > **원본 그대로** 소스로 삼아 빌드되는 Astro 정적 웹사이트.
 
 ## 로컬 개발
@@ -25,7 +25,6 @@ npm run preview # 빌드 결과 미리보기
 | 사이트 경로 | 소스 (레포 루트 기준) |
 |---|---|
 | `/checklists/<slug>` | `docs/*.md` (일부 화이트리스트) |
-| `/news/<slug>` | `docs/SECURITY_NEWS/**/*.md` |
 | `/prompts/required/<slug>` | `prompts/required/*.md` |
 | `/prompts/optional/<slug>` | `prompts/optional/*.md` |
 | `/prompts/startup/<slug>` | `prompts/startup/*.md` |

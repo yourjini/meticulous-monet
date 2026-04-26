@@ -64,7 +64,6 @@ cd meticulous-monet
 | `/new-project` | 신규 프로젝트 시작하려 할 때 |
 | `/pre-commit-check` | 커밋 직전 |
 | `/update-checklist` | 새 보안 이슈를 경험/목격했을 때 |
-| `/daily-news` | "오늘의 클로드 보안뉴스" 기록 |
 | `/new-prompt` | "오늘의 새로운 프롬프트" 기록 |
 | `/startup` | 초보자/환경/신규·기존 상황별 시작 프롬프트 선택 |
 
@@ -103,5 +102,5 @@ cd meticulous-monet
 - Step 2-4 의 slash command 는 **시연**한다. 설명만으로는 기억에 남지 않는다.
 - Step 3 의 3가지 습관 버리기는 **이미 들어있는 습관을 제거**하는 것이다. 한 번의 설명으로 안 되므로,
   첫 1주는 커밋마다 옆에서 확인해준다.
-- 마지막에 [`docs/SECURITY_NEWS/`](SECURITY_NEWS/) 에 최신 사례 하나를 함께 읽고 끝낸다.
+- 마지막에 본인이 최근 겪은 사례 하나를 들려주고 끝낸다.
   추상 원칙보다 **사례**가 기억에 남는다.

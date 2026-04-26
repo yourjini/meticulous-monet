@@ -58,13 +58,10 @@ meticulous-monet/
 ├── docs/
 │   ├── SECURITY_CHECKLIST.md       # 마스터 체크리스트
 │   ├── NEW_PROJECT_CHECKLIST.md    # 신규 프로젝트 시작 체크리스트
+│   ├── REPO_HARDENING.md           # 신규 레포 보안 강화 레시피 (한 번 세팅)
 │   ├── AI_CODE_REVIEW.md           # AI 생성 코드 배포 전 4대 관문
 │   ├── MULTI_ENV_GUIDE.md          # 다중 환경/계정 운영 가이드
-│   ├── ONBOARDING.md               # 교육용 신규 사용자 온보딩
-│   └── SECURITY_NEWS/
-│       ├── README.md
-│       ├── TEMPLATE.md
-│       └── YYYY/YYYY-MM-DD.md      # 오늘의 클로드 보안뉴스 일자별 기록
+│   └── ONBOARDING.md               # 교육용 신규 사용자 온보딩
 ├── prompts/
 │   ├── README.md
 │   ├── required/                   # 매일·매세션·매커밋·매배포 무조건
@@ -93,7 +90,6 @@ meticulous-monet/
 │       ├── pre-commit-check.md     # /pre-commit-check
 │       ├── pre-deploy-check.md     # /pre-deploy-check
 │       ├── update-checklist.md     # /update-checklist
-│       ├── daily-news.md           # /daily-news
 │       ├── new-prompt.md           # /new-prompt
 │       └── startup.md              # /startup (상황별 시작 프롬프트)
 ├── templates/
@@ -106,10 +102,9 @@ meticulous-monet/
 1. 세션 시작 → `/startup` (또는 `/security-check`)
 2. 작업 중 새 이슈 감지 → `/update-checklist <요약>`
 3. 새 프롬프트를 만들고 싶을 때 → `/new-prompt <요지>` (필수/선택 분류)
-4. 새로운 뉴스/사례 발견 → `/daily-news <제목 또는 URL>`
-5. 커밋 직전 → `/pre-commit-check`
-6. 배포 직전 → `/pre-deploy-check`
-7. 하루 끝 → `prompts/required/daily-audit.md`
+4. 커밋 직전 → `/pre-commit-check`
+5. 배포 직전 → `/pre-deploy-check`
+6. 하루 끝 → `prompts/required/daily-audit.md`
 
 ---
 

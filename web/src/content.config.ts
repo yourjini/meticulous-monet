@@ -21,13 +21,6 @@ export const collections = {
     }),
     schema: looseFrontmatter,
   }),
-  news: defineCollection({
-    loader: glob({
-      pattern: ['**/*.md', '!README.md', '!TEMPLATE.md'],
-      base: `${docRoot}/SECURITY_NEWS`,
-    }),
-    schema: looseFrontmatter,
-  }),
   'prompts-required': defineCollection({
     loader: glob({ pattern: '*.md', base: `${promptRoot}/required` }),
     schema: looseFrontmatter,

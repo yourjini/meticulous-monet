@@ -22,5 +22,5 @@
    개인/회사 이메일이 섞인 레포가 있으면 목록화.
 5) Anthropic / Claude 계정의 세션·API 키 관리 페이지로 이동 안내 (사용자 환경별로).
 6) 마지막에 "revoke 한 토큰/키 목록" 을 기록으로 남기도록
-   `docs/SECURITY_NEWS/YYYY/YYYY-MM-DD.md` 에 간단 엔트리 작성 제안.
+   `docs/SECURITY_CHECKLIST.md` §7 셀프 점검 로그에 한 줄 추가 제안.
 ```
