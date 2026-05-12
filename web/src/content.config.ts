@@ -3,6 +3,7 @@ import { glob } from 'astro/loaders';
 
 const docRoot = '../docs';
 const promptRoot = '../prompts';
+const libraryRoot = '../library';
 
 const looseFrontmatter = z
   .object({
@@ -12,6 +13,16 @@ const looseFrontmatter = z
     argumentHint: z.string().optional(),
   })
   .passthrough();
+
+const libraryEntry = z.object({
+  title: z.string(),
+  tags: z.array(z.string()).default([]),
+  source: z.string().optional(),
+  added: z.coerce.date().optional(),
+  model: z.string().optional(),
+  note: z.string().optional(),
+  summary: z.string().optional(),
+});
 
 export const collections = {
   checklists: defineCollection({
@@ -32,5 +43,9 @@ export const collections = {
   'prompts-startup': defineCollection({
     loader: glob({ pattern: '*.md', base: `${promptRoot}/startup` }),
     schema: looseFrontmatter,
+  }),
+  library: defineCollection({
+    loader: glob({ pattern: ['**/*.md', '!README.md', '!_*.md'], base: libraryRoot }),
+    schema: libraryEntry,
   }),
 };

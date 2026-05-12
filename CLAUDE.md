@@ -63,6 +63,15 @@
 
 ---
 
+## 5-bis. AI 프롬프트 수집 (library/)
+
+사용자가 "이 프롬프트 저장해줘" "라이브러리에 추가" 같은 의사를 밝히면 `/add-prompt` 절차를 따른다:
+`library/<slug>.md` 한 파일로 저장하고, 프론트매터(`title` / `tags` / `source` / `added` / `model` / 선택적 `note`·`summary`) +
+본문에 프롬프트 텍스트만 담는다. 형식은 [`library/README.md`](library/README.md). 저장 전 본문에 실제 키·개인정보가 없는지 §3 기준으로 점검한다.
+내보내기는 `/export-library [태그]` 또는 웹(`web/`)의 `/library` 페이지.
+
+---
+
 ## 6. 일일 저장 습관
 
 사용자가 명시적으로 꺼두지 않는 한, 하루 중 체크리스트/프롬프트가 변경된 날에는
@@ -85,6 +94,7 @@
 - [docs/REPO_HARDENING.md](docs/REPO_HARDENING.md) — 신규 레포 보안 강화 레시피 (한 번 세팅)
 - [docs/MULTI_ENV_GUIDE.md](docs/MULTI_ENV_GUIDE.md) — 다중 환경/계정
 - [docs/ONBOARDING.md](docs/ONBOARDING.md) — 교육용 온보딩
+- [library/README.md](library/README.md) — AI 프롬프트 수집 보관함 형식·태그
 - [prompts/pre-work.md](prompts/pre-work.md)
 - [prompts/pre-commit.md](prompts/pre-commit.md)
 - [prompts/daily-audit.md](prompts/daily-audit.md)

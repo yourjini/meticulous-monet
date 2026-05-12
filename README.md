@@ -47,6 +47,15 @@ Claude Code를 **여러 환경(집/회사/모바일/데스크탑/노트북) · �
 - 방금 경험한 이슈를 `docs/SECURITY_CHECKLIST.md` 해당 섹션에 추가하고,
   `CHANGELOG.md` 와 같은 효과로 커밋까지 이어진다.
 
+### 6. 쓸 만한 AI 프롬프트를 발견했을 때
+```
+/add-prompt
+```
+- 프롬프트 전문 · 제목 · 태그(보안/창작/교육/업무/자동화/개발…) · 출처를 묻고 `library/<slug>.md` 로 저장.
+- 텍스트 길이 제한 없음. 모아둔 건 웹(`web/`)의 **라이브러리** 페이지에서 태그로 거르고, 클릭해 전문 보기 → 복사하거나 `.md` 로 내보낼 수 있다.
+- 한꺼번에 내보내려면 `/export-library [태그]` (또는 웹 `/library` 의 "전체 .md 다운로드").
+- 형식 상세: [`library/README.md`](library/README.md).
+
 ---
 
 ## 디렉토리 구조
@@ -62,7 +71,7 @@ meticulous-monet/
 │   ├── AI_CODE_REVIEW.md           # AI 생성 코드 배포 전 4대 관문
 │   ├── MULTI_ENV_GUIDE.md          # 다중 환경/계정 운영 가이드
 │   └── ONBOARDING.md               # 교육용 신규 사용자 온보딩
-├── prompts/
+├── prompts/                        # Claude Code 보안·운영 전용 프롬프트
 │   ├── README.md
 │   ├── required/                   # 매일·매세션·매커밋·매배포 무조건
 │   │   ├── pre-work.md
@@ -82,6 +91,10 @@ meticulous-monet/
 │       ├── env-common.md
 │       ├── project-new.md
 │       └── project-existing.md
+├── library/                        # 범용 AI 프롬프트 수집 보관함 (태그 분류)
+│   ├── README.md
+│   ├── _TEMPLATE.md
+│   └── <slug>.md                   # 프롬프트 한 개당 한 파일
 ├── .claude/
 │   ├── settings.json               # SessionStart hook + 금지 git 플래그 차단
 │   └── commands/
@@ -91,6 +104,8 @@ meticulous-monet/
 │       ├── pre-deploy-check.md     # /pre-deploy-check
 │       ├── update-checklist.md     # /update-checklist
 │       ├── new-prompt.md           # /new-prompt
+│       ├── add-prompt.md           # /add-prompt (library/ 에 AI 프롬프트 추가)
+│       ├── export-library.md       # /export-library (library/ 를 한 .md 로 내보내기)
 │       └── startup.md              # /startup (상황별 시작 프롬프트)
 ├── templates/
 │   └── gitignore.template          # 신규 프로젝트에 복사해 쓰는 템플릿

@@ -1,0 +1,159 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { rawFile, tidyText, fmtDate } from '../../lib/library';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('library');
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { title, tags, source, added, model, note, summary } = entry.data;
+const body = tidyText(entry.body ?? '');
+const original = rawFile(entry.id);
+const fileName = `${entry.id.split('/').pop()}.md`;
+const dateStr = fmtDate(added);
+const isUrl = !!source && /^https?:\/\//i.test(source);
+const charCount = body.replace(/\n/g, '').length;
+---
+
+<Base
+  title={`${title} · 라이브러리`}
+  pageTitle={title}
+  description={summary || note || `프롬프트 라이브러리: ${title}`}
+>
+  <article>
+    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+      <a href="/library/" class="hover:text-[var(--color-ink)]">← 라이브러리</a>
+    </p>
+
+    <h1 class="mt-3 text-[24px] sm:text-[28px] leading-tight tracking-tight font-semibold">
+      {title}
+    </h1>
+
+    <div class="mt-3 flex flex-wrap gap-1.5">
+      {
+        tags.map((t) => (
+          <a
+            href={`/library/?tag=${encodeURIComponent(t)}`}
+            class="text-[12px] rounded-full bg-[color-mix(in_oklab,var(--color-ink)_7%,transparent)] px-2 py-0.5 text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+          >
+            {t}
+          </a>
+        ))
+      }
+    </div>
+
+    <dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[13px] text-[var(--color-muted)]">
+      {
+        source && (
+          <>
+            <dt>출처</dt>
+            <dd>
+              {isUrl ? (
+                <a href={source} rel="noreferrer noopener" class="underline hover:text-[var(--color-ink)] break-all">
+                  {source}
+                </a>
+              ) : (
+                source
+              )}
+            </dd>
+          </>
+        )
+      }
+      {dateStr && (<><dt>추가</dt><dd>{dateStr}</dd></>)}
+      <dt>모델</dt><dd>{model || 'any'}</dd>
+      <dt>길이</dt><dd>{charCount.toLocaleString()}자</dd>
+    </dl>
+
+    {
+      note && (
+        <p class="mt-4 text-[13.5px] leading-relaxed border-l-2 border-[var(--color-accent)] pl-3 text-[var(--color-muted)]">
+          {note}
+        </p>
+      )
+    }
+
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        id="copy-prompt"
+        class="inline-flex items-center gap-2 rounded-md bg-[var(--color-ink)] text-[var(--color-paper)] px-3.5 py-2 text-[13px] hover:opacity-90 transition"
+      >
+        <span data-copy-label>프롬프트 복사</span>
+      </button>
+      <button
+        type="button"
+        id="download-md"
+        class="inline-flex items-center gap-2 rounded-md border border-[var(--color-line)] px-3.5 py-2 text-[13px] hover:border-[var(--color-ink)] transition"
+      >
+        .md 저장
+      </button>
+    </div>
+
+    <pre id="prompt-text" class="prompt-text mt-4">{body}</pre>
+  </article>
+</Base>
+
+<style>
+  .prompt-text {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: color-mix(in oklab, var(--color-ink) 5%, transparent);
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+  }
+</style>
+
+<script define:vars={{ body, original, fileName }}>
+  const copyBtn = document.getElementById('copy-prompt');
+  const label = copyBtn?.querySelector('[data-copy-label]');
+  if (copyBtn && label) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(body);
+      } catch {
+        // Fallback for non-secure contexts.
+        const ta = document.createElement('textarea');
+        ta.value = body;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      const prev = label.textContent;
+      label.textContent = '복사됨 ✓';
+      copyBtn.disabled = true;
+      setTimeout(() => {
+        label.textContent = prev;
+        copyBtn.disabled = false;
+      }, 1400);
+    });
+  }
+
+  const dlBtn = document.getElementById('download-md');
+  if (dlBtn) {
+    dlBtn.addEventListener('click', () => {
+      const blob = new Blob([original], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
+</script>
