@@ -25,13 +25,10 @@ const charCount = body.replace(/\n/g, '').length;
   title={`${title} · 라이브러리`}
   pageTitle={title}
   description={summary || note || `프롬프트 라이브러리: ${title}`}
+  breadcrumb={[{ label: '라이브러리', href: '/library/' }, { label: title }]}
 >
   <article>
-    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
-      <a href="/library/" class="hover:text-[var(--color-ink)]">← 라이브러리</a>
-    </p>
-
-    <h1 class="mt-3 text-[24px] sm:text-[28px] leading-tight tracking-tight font-semibold">
+    <h1 class="text-[24px] sm:text-[28px] leading-tight tracking-tight font-semibold">
       {title}
     </h1>
 

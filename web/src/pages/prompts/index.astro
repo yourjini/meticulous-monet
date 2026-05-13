@@ -66,10 +66,7 @@ function stripPathPrefix(title: string): string {
           </span>
         </div>
         <p class="text-[14px] text-[var(--color-muted)] mb-4">{section.description}</p>
-        <div
-          class="prompt-row"
-          style={`--cols: ${section.entries.length}`}
-        >
+        <div class="prompt-row">
           {section.entries.map((entry) => (
             <EntryCard
               href={`${section.base}/${entry.id}/`}
@@ -89,9 +86,9 @@ function stripPathPrefix(title: string): string {
     gap: 0.75rem;
     grid-template-columns: 1fr;
   }
-  @media (min-width: 640px) {
+  @media (min-width: 540px) {
     .prompt-row {
-      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
   }
 </style>

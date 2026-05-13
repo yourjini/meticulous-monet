@@ -29,19 +29,24 @@ export async function getStaticPaths() {
 }
 
 const { entry, categoryLabel, categoryName } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const title = firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id));
 const description = firstParagraphAsSummary(entry.body);
 ---
 
-<Base title={`${title} · ${categoryLabel} 프롬프트`} pageTitle={title} description={description}>
+<Base
+  title={`${title} · ${categoryLabel} 프롬프트`}
+  pageTitle={title}
+  description={description}
+  headings={headings}
+  breadcrumb={[
+    { label: '프롬프트', href: '/prompts/' },
+    { label: categoryLabel },
+    { label: title },
+  ]}
+>
   <article>
-    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)] flex gap-2">
-      <a href="/prompts/" class="hover:text-[var(--color-ink)]">← 프롬프트</a>
-      <span aria-hidden="true">·</span>
-      <span>{categoryLabel}</span>
-    </p>
-    <div class="prose mt-4">
+    <div class="prose mt-2">
       <Content />
     </div>
   </article>

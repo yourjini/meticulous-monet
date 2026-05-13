@@ -5,8 +5,10 @@ export function firstHeadingAsTitle(body: string | undefined, fallback: string):
   if (!body) return fallback;
   const m = body.match(/^\s*#\s+(.+?)\s*$/m);
   if (!m) return fallback;
-  // Strip a leading filename prefix like "NAME.md —" to keep titles short.
-  return m[1].replace(/^[A-Z_./]+\.md\s*[—\-:]\s*/, '').trim();
+  // Strip a leading filename / path prefix like "NAME.md —" or "prompts/foo/bar.md —"
+  // to keep titles short. Matches both uppercase (CHECKLIST.md) and lowercase
+  // (prompts/required/pre-commit.md) prefixes.
+  return m[1].replace(/^[A-Za-z0-9_./-]+\.md\s*[—\-:]\s*/, '').trim();
 }
 
 export function firstParagraphAsSummary(body: string | undefined, maxLen = 160): string | undefined {

@@ -6,7 +6,7 @@
   "description": "Claude Code 안전 사용 웹진 - meticulous-monet",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check"
@@ -17,5 +17,8 @@
     "@astrojs/sitemap": "^3.6.0",
     "tailwindcss": "^4.1.15",
     "@tailwindcss/vite": "^4.1.15"
+  },
+  "devDependencies": {
+    "pagefind": "^1.4.0"
   }
 }

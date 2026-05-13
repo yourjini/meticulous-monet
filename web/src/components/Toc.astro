@@ -1,0 +1,111 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+interface Props {
+  headings: Heading[];
+}
+const { headings } = Astro.props;
+// h2 / h3 만. h2가 하나도 없으면 보여줄 필요 없음.
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const show = items.some((h) => h.depth === 2);
+---
+
+{
+  show && (
+    <aside class="toc" aria-label="목차">
+      <div class="toc-inner">
+        <div class="toc-title">이 페이지</div>
+        <ul class="toc-list">
+          {items.map((h) => (
+            <li class:list={['toc-item', h.depth === 3 && 'is-sub']}>
+              <a href={`#${h.slug}`} data-toc-link={h.slug}>
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+  )
+}
+
+<style>
+  .toc {
+    display: none;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  @media (min-width: 1280px) {
+    .toc { display: block; }
+  }
+  .toc-inner {
+    position: sticky;
+    top: 2rem;
+    padding: 2.25rem 0 2rem 1rem;
+    border-left: 1px solid var(--color-line);
+    max-height: calc(100svh - 2rem);
+    overflow-y: auto;
+  }
+  .toc-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-muted);
+    margin-bottom: 0.6rem;
+  }
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .toc-item a {
+    display: block;
+    padding: 0.2rem 0;
+    color: var(--color-muted);
+    text-decoration: none;
+    line-height: 1.45;
+  }
+  .toc-item a:hover { color: var(--color-ink); }
+  .toc-item.is-sub a { padding-left: 0.7rem; font-size: 12px; }
+  .toc-item a.is-active {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  // 스크롤 스파이: 가장 위에 보이는 h2/h3 를 TOC에서 강조.
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
+  if (links.length > 0) {
+    const linkBySlug = new Map<string, HTMLAnchorElement>();
+    links.forEach((a) => linkBySlug.set(a.dataset.tocLink ?? '', a));
+    const headings = document.querySelectorAll<HTMLElement>('main h2[id], main h3[id]');
+    const visible = new Set<string>();
+
+    const update = () => {
+      // 화면 상단부 100~250px 사이에 가장 가까운 visible 헤딩 하나를 활성화.
+      const candidates = [...visible].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+      if (candidates.length === 0) return;
+      candidates.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      const top = candidates[0];
+      links.forEach((l) => l.classList.remove('is-active'));
+      const link = linkBySlug.get(top.id);
+      if (link) link.classList.add('is-active');
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        }
+        update();
+      },
+      { rootMargin: '-80px 0px -70% 0px', threshold: 0 },
+    );
+    headings.forEach((h) => io.observe(h));
+  }
+</script>

@@ -12,17 +12,20 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const title = firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id));
 const description = firstParagraphAsSummary(entry.body);
 ---
 
-<Base title={`${title} · meticulous-monet`} pageTitle={title} description={description}>
+<Base
+  title={`${title} · meticulous-monet`}
+  pageTitle={title}
+  description={description}
+  headings={headings}
+  breadcrumb={[{ label: '체크리스트', href: '/checklists/' }, { label: title }]}
+>
   <article>
-    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
-      <a href="/checklists/" class="hover:text-[var(--color-ink)]">← 체크리스트</a>
-    </p>
-    <div class="prose mt-4">
+    <div class="prose mt-2">
       <Content />
     </div>
   </article>

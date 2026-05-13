@@ -1,20 +1,49 @@
 ---
 import '../styles/global.css';
-import Nav from '../components/Nav.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Toc from '../components/Toc.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Footer from '../components/Footer.astro';
+
+export interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+export interface Crumb {
+  label: string;
+  href?: string;
+}
 
 interface Props {
   title: string;
   description?: string;
   pageTitle?: string;
+  /** Heading list from `render(entry)`. If empty/omitted, no TOC column. */
+  headings?: Heading[];
+  /** Crumb trail above page title. */
+  breadcrumb?: Crumb[];
+  /** Force-hide the TOC even if headings are present (used on index pages). */
+  hideToc?: boolean;
 }
 
-const { title, description, pageTitle } = Astro.props;
+const {
+  title,
+  description,
+  pageTitle,
+  headings = [],
+  breadcrumb = [],
+  hideToc = false,
+} = Astro.props;
+
 const siteTitle = 'meticulous-monet';
 const fullTitle = pageTitle ? `${pageTitle} · ${siteTitle}` : title;
 const desc =
   description ??
   'Claude Code를 여러 환경·여러 계정에서 안전하게 쓰기 위한 원칙·체크리스트·프롬프트 웹진.';
+
+const tocItems = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const showToc = !hideToc && tocItems.some((h) => h.depth === 2);
 ---
 
 <!doctype html>
@@ -31,16 +60,149 @@ const desc =
     <meta name="twitter:card" content="summary" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
     <title>{fullTitle}</title>
   </head>
   <body>
     <div class="monet-bg" aria-hidden="true"></div>
-    <div class="min-h-svh flex flex-col">
-      <Nav />
-      <main class="flex-1 mx-auto w-full max-w-3xl px-5 sm:px-6 py-10 sm:py-14">
+
+    <header class="mobile-header">
+      <a href="/" class="brand-mini">
+        <span class="brand-mini__dot" aria-hidden="true"></span>
+        meticulous-monet
+      </a>
+      <button
+        type="button"
+        class="nav-toggle"
+        aria-label="메뉴 열기"
+        onclick="document.body.classList.toggle('nav-open')"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <line x1="4" y1="7" x2="20" y2="7" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="17" x2="20" y2="17" />
+        </svg>
+      </button>
+    </header>
+
+    <div class:list={['page-grid', showToc && 'has-toc']}>
+      <Sidebar />
+
+      <main class="content" data-pagefind-body>
+        <Breadcrumbs items={breadcrumb} />
         <slot />
       </main>
-      <Footer />
+
+      {showToc && <Toc headings={tocItems} />}
     </div>
+
+    <Footer />
+
+    <script src="/pagefind/pagefind-ui.js" is:inline></script>
+    <script is:inline>
+      window.addEventListener('DOMContentLoaded', () => {
+        const el = document.getElementById('search');
+        // PagefindUI is loaded by the script tag above. It only exists after the
+        // build runs `pagefind --site dist`. If the asset is missing (e.g. dev
+        // server before first build), silently no-op.
+        if (el && typeof window.PagefindUI === 'function') {
+          // eslint-disable-next-line no-new
+          new window.PagefindUI({
+            element: '#search',
+            showSubResults: true,
+            showImages: false,
+            resetStyles: false,
+            translations: {
+              placeholder: '검색…',
+              clear_search: '지우기',
+              load_more: '더 보기',
+              search_label: '검색',
+              filters_label: '필터',
+              zero_results: '"[SEARCH_TERM]"에 대한 결과가 없습니다',
+              many_results: '"[SEARCH_TERM]"에 대한 [COUNT]개 결과',
+              one_result: '"[SEARCH_TERM]"에 대한 [COUNT]개 결과',
+              alt_search: '"[SEARCH_TERM]"의 결과 없음. 대신 [DIFFERENT_TERM]:',
+              search_suggestion: '"[SEARCH_TERM]"의 결과 없음. 다음 중 시도해 보세요:',
+              searching: '"[SEARCH_TERM]" 검색 중…',
+            },
+          });
+        }
+      });
+    </script>
   </body>
 </html>
+
+<style>
+  .mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .brand-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 14.5px;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+  .brand-mini__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--color-accent);
+  }
+  .nav-toggle {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.25rem;
+    color: var(--color-ink);
+    cursor: pointer;
+    line-height: 0;
+  }
+
+  .page-grid {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .content {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 1.5rem 0 3rem;
+    min-width: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-header { display: none; }
+    .page-grid {
+      display: grid;
+      grid-template-columns: 15rem minmax(0, 1fr);
+      gap: 2.25rem;
+      padding: 0 1.5rem;
+      align-items: start;
+    }
+    .content {
+      padding: 2.5rem 0 4rem;
+      max-width: none;
+    }
+  }
+  @media (min-width: 1280px) {
+    .page-grid.has-toc {
+      grid-template-columns: 15rem minmax(0, 1fr) 13rem;
+    }
+    /* Without TOC: keep content readable, don't stretch full width. */
+    .page-grid:not(.has-toc) .content { max-width: 760px; }
+  }
+</style>
