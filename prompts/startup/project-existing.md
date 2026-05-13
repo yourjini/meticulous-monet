@@ -1,4 +1,4 @@
-# prompts/startup/project-existing.md — 기존 레포에서 작업 재개 시
+# 기존 레포에서 작업 재개 시
 
 - **대상**: 이미 있는 레포에서 작업을 이어갈 때.
 

@@ -1,4 +1,4 @@
-# prompts/required/pre-commit.md — 커밋 직전 자가진단
+# 커밋 직전 자가진단
 
 - **언제 쓰나**: `git commit` 직전.
 - **예상 소요시간**: 1~2분.

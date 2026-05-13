@@ -1,4 +1,4 @@
-# prompts/required/pre-work.md — 작업 시작 전 자가진단
+# 작업 시작 전 자가진단
 
 - **언제 쓰나**: Claude Code 세션을 열자마자, 첫 지시 전에.
 - **예상 소요시간**: 1분.

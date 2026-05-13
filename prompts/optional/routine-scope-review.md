@@ -1,4 +1,4 @@
-# prompts/optional/routine-scope-review.md — 자동화 에이전트 작업 범위·권한 재확인
+# 자동화 에이전트 작업 범위·권한 재확인
 
 - **언제 쓰나**: Routines / 스케줄 자동화 / GitHub Actions 등 "자동으로 도는 것" 이 있을 때. 월 1회 권장.
 - **예상 소요시간**: 10분.

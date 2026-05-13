@@ -1,4 +1,4 @@
-# SECURITY_CHECKLIST.md — 마스터 보안 체크리스트
+# 마스터 보안 체크리스트
 
 > **사용법**
 > - 매 세션 시작 시: [§1 Session Preflight](#1-session-preflight) 확인
