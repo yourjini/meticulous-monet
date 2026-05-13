@@ -33,16 +33,23 @@ function orderedSort<T extends Entry>(list: T[], order: string[]): T[] {
 }
 
 export async function buildNav(): Promise<NavSection[]> {
-  const [checklists, required, optional, startup] = await Promise.all([
+  const [checklists, required, optional, startup, library] = await Promise.all([
     getCollection('checklists'),
     getCollection('prompts-required'),
     getCollection('prompts-optional'),
     getCollection('prompts-startup'),
+    getCollection('library'),
   ]);
 
   const sortedChecklists = orderedSort(checklists, CHECKLIST_ORDER);
   const byId = <T extends Entry>(list: T[]) =>
     list.slice().sort((a, b) => a.id.localeCompare(b.id));
+  const sortedLibrary = library.slice().sort((a, b) => {
+    const ta = a.data.added ? a.data.added.getTime() : -Infinity;
+    const tb = b.data.added ? b.data.added.getTime() : -Infinity;
+    if (ta !== tb) return tb - ta;
+    return a.data.title.localeCompare(b.data.title);
+  });
 
   return [
     { label: '홈', href: '/' },
@@ -81,7 +88,14 @@ export async function buildNav(): Promise<NavSection[]> {
         },
       ],
     },
-    { label: '라이브러리', href: '/library/' },
+    {
+      label: '라이브러리',
+      href: '/library/',
+      items: sortedLibrary.map((e) => ({
+        label: e.data.title,
+        href: `/library/${e.id}/`,
+      })),
+    },
     { label: '소개', href: '/about/' },
   ];
 }

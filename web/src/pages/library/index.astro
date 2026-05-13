@@ -18,12 +18,10 @@ const entries = raw
     return a.data.title.localeCompare(b.data.title);
   });
 
-// Tag counts, most-used first.
 const tagCount = new Map<string, number>();
 for (const e of entries) for (const t of e.data.tags) tagCount.set(t, (tagCount.get(t) ?? 0) + 1);
 const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
-// Combined export blob (all entries, original files verbatim, joined).
 const today = new Date().toISOString().slice(0, 10);
 const SEP = '\n\n<!-- ─────────────────────────────────────────── -->\n\n';
 const combined =
@@ -36,109 +34,211 @@ const exportName = `prompt-library-${today}.md`;
 ---
 
 <Base title="라이브러리 · meticulous-monet" pageTitle="라이브러리">
-  <header class="pb-6">
-    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">Library</p>
-    <h1 class="mt-2 text-[26px] sm:text-[30px] leading-tight tracking-tight font-semibold">
-      AI 프롬프트 라이브러리
-    </h1>
-    <p class="mt-3 text-[15px] text-[var(--color-muted)] leading-relaxed max-w-[62ch]">
-      쓸 만한 AI 프롬프트를 발견할 때마다 모아둔 곳. 태그로 거르고, 클릭하면 전문을 보고
-      그대로 복사하거나 <code class="font-mono text-[13.5px]">.md</code> 로 내보낼 수 있습니다.
-      추가는 <code class="font-mono text-[13.5px]">/add-prompt</code> 또는
-      <code class="font-mono text-[13.5px]">library/</code> 에 직접.
+  <article>
+    <h1 class="title">라이브러리</h1>
+    <p class="lead">
+      쓸 만한 AI 프롬프트를 발견할 때마다 모아둔 곳. 왼쪽 트리에서 바로 클릭해도 되고,
+      아래 태그로 좁힌 뒤 골라도 됩니다. 클릭하면 전문을 보고 그대로 복사하거나
+      <code>.md</code> 로 내보낼 수 있어요. 추가는 <code>/add-prompt</code> 또는
+      <code>library/</code> 에 직접.
     </p>
-  </header>
 
-  <div class="flex flex-wrap items-center gap-2 mb-5">
-    <button
-      type="button"
-      data-tag="*"
-      class="tag-chip is-active text-[12.5px] rounded-full border border-[var(--color-line)] px-2.5 py-1"
-    >
-      전체 <span class="opacity-60">{entries.length}</span>
-    </button>
-    {
-      tags.map(([t, n]) => (
-        <button
-          type="button"
-          data-tag={t}
-          class="tag-chip text-[12.5px] rounded-full border border-[var(--color-line)] px-2.5 py-1"
-        >
-          {t} <span class="opacity-60">{n}</span>
+    <div class="filter-bar">
+      <div class="tag-chips" role="toolbar" aria-label="태그 필터">
+        <button type="button" data-tag="*" class="tag-chip is-active">
+          전체 <span class="cnt">{entries.length}</span>
         </button>
-      ))
-    }
-  </div>
+        {tags.map(([t, n]) => (
+          <button type="button" data-tag={t} class="tag-chip">
+            {t} <span class="cnt">{n}</span>
+          </button>
+        ))}
+      </div>
+      <button type="button" id="export-all" class="export-btn">
+        전체 .md 다운로드
+      </button>
+    </div>
 
-  <div class="flex items-center justify-between gap-3 mb-3 text-[12.5px] text-[var(--color-muted)]">
-    <span data-result-count>{entries.length}개</span>
-    <button
-      type="button"
-      id="export-all"
-      class="rounded-md border border-[var(--color-line)] px-2.5 py-1 hover:border-[var(--color-ink)] transition-colors"
-    >
-      전체 .md 다운로드
-    </button>
-  </div>
+    <p class="result-line">
+      <span data-result-count>{entries.length}</span>개 항목
+    </p>
 
-  <div class="grid gap-3" id="lib-list">
-    {
-      entries.map((e) => (
-        <a
-          href={`/library/${e.id}/`}
-          class="lib-card group block border border-[var(--color-line)] rounded-lg px-4 py-4 sm:px-5 sm:py-5 hover:border-[var(--color-ink)] transition-colors"
-          data-tags={e.data.tags.join('|')}
-        >
-          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--color-muted)] mb-1.5">
-            {e.data.tags.map((t) => (
-              <span class="rounded-full bg-[color-mix(in_oklab,var(--color-ink)_7%,transparent)] px-2 py-0.5">
-                {t}
-              </span>
-            ))}
-            {fmtDate(e.data.added) && <span class="ml-auto">{fmtDate(e.data.added)}</span>}
-          </div>
-          <h3 class="text-[15px] sm:text-base font-semibold leading-snug tracking-tight group-hover:text-[var(--color-accent)] transition-colors">
-            {e.data.title}
-          </h3>
-          {blurb({ summary: e.data.summary, note: e.data.note, body: e.body }) && (
-            <p class="mt-1.5 text-[13.5px] text-[var(--color-muted)] leading-relaxed line-clamp-3">
-              {blurb({ summary: e.data.summary, note: e.data.note, body: e.body })}
-            </p>
-          )}
-        </a>
-      ))
-    }
-  </div>
+    <ul class="lib-list" id="lib-list">
+      {entries.map((e) => (
+        <li class="lib-row" data-tags={e.data.tags.join('|')}>
+          <a href={`/library/${e.id}/`} class="lib-link">
+            <div class="lib-head">
+              <span class="lib-title">{e.data.title}</span>
+              {fmtDate(e.data.added) && <span class="lib-date">{fmtDate(e.data.added)}</span>}
+            </div>
+            <div class="lib-meta">
+              {e.data.tags.map((t) => (
+                <span class="tag">{t}</span>
+              ))}
+              {e.data.model && e.data.model !== 'any' && (
+                <span class="model">· {e.data.model}</span>
+              )}
+            </div>
+            {blurb({ summary: e.data.summary, note: e.data.note, body: e.body }) && (
+              <p class="lib-summary">
+                {blurb({ summary: e.data.summary, note: e.data.note, body: e.body })}
+              </p>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
 
-  {
-    entries.length === 0 && (
-      <p class="text-[14px] text-[var(--color-muted)] mt-4">
-        아직 항목이 없습니다. <code class="font-mono text-[13px]">/add-prompt</code> 로 첫 프롬프트를 추가하세요.
+    {entries.length === 0 && (
+      <p class="empty">
+        아직 항목이 없습니다. <code>/add-prompt</code> 로 첫 프롬프트를 추가하세요.
       </p>
-    )
-  }
-
-  <p data-empty-msg hidden class="text-[14px] text-[var(--color-muted)] mt-4">
-    이 태그에 해당하는 프롬프트가 없습니다.
-  </p>
+    )}
+    <p data-empty-msg hidden class="empty">
+      이 태그에 해당하는 프롬프트가 없습니다.
+    </p>
+  </article>
 </Base>
 
 <style>
-  .tag-chip { cursor: pointer; transition: border-color 0.15s, background-color 0.15s, color 0.15s; }
+  .title {
+    font-size: clamp(1.6rem, 2.5vw + 1rem, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .lead {
+    margin: 0.9rem 0 1.6rem;
+    color: var(--color-ink);
+    font-size: 14.5px;
+    line-height: 1.7;
+    max-width: 62ch;
+  }
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .tag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    flex: 1 1 auto;
+  }
+  .tag-chip {
+    appearance: none;
+    cursor: pointer;
+    font-size: 12.5px;
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    background: transparent;
+    color: var(--color-ink);
+    padding: 0.2rem 0.65rem;
+    line-height: 1.4;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
   .tag-chip:hover { border-color: var(--color-ink); }
   .tag-chip.is-active {
     background: var(--color-ink);
     color: var(--color-paper);
     border-color: var(--color-ink);
   }
-  .lib-card[hidden] { display: none; }
+  .tag-chip .cnt { opacity: 0.6; margin-left: 0.15rem; }
+
+  .export-btn {
+    appearance: none;
+    cursor: pointer;
+    font-size: 12.5px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line);
+    background: transparent;
+    color: var(--color-ink);
+    padding: 0.3rem 0.7rem;
+  }
+  .export-btn:hover { border-color: var(--color-ink); }
+
+  .result-line {
+    margin: 0.25rem 0 0.65rem;
+    font-size: 12.5px;
+    color: var(--color-muted);
+  }
+
+  .lib-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .lib-row {
+    border-bottom: 1px solid var(--color-line);
+  }
+  .lib-row[hidden] { display: none; }
+  .lib-link {
+    display: block;
+    padding: 0.85rem 0.25rem;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .lib-link:hover { background: color-mix(in oklab, var(--color-ink) 4%, transparent); }
+  .lib-link:hover .lib-title { color: var(--color-accent); }
+  .lib-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .lib-title {
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .lib-date {
+    font-size: 12px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+  .lib-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.05rem 0.45rem;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--color-ink) 7%, transparent);
+  }
+  .lib-summary {
+    margin: 0.35rem 0 0;
+    font-size: 13px;
+    color: var(--color-muted);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .empty {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin-top: 1.5rem;
+  }
 </style>
 
 <script define:vars={{ combined, exportName }}>
-  // ── 태그 필터 (여러 개 선택 시 합집합) ────────────────────────────
+  // 태그 필터 (OR / 합집합)
   const chips = [...document.querySelectorAll('.tag-chip')];
   const allChip = document.querySelector('.tag-chip[data-tag="*"]');
-  const cards = [...document.querySelectorAll('.lib-card')];
+  const rows = [...document.querySelectorAll('.lib-row')];
   const countEl = document.querySelector('[data-result-count]');
   const emptyEl = document.querySelector('[data-empty-msg]');
   const active = new Set();
@@ -150,13 +250,13 @@ const exportName = `prompt-library-${today}.md`;
       c.classList.toggle('is-active', active.has(c.dataset.tag));
     }
     let shown = 0;
-    for (const card of cards) {
-      const tags = (card.dataset.tags || '').split('|').filter(Boolean);
+    for (const row of rows) {
+      const tags = (row.dataset.tags || '').split('|').filter(Boolean);
       const ok = active.size === 0 || tags.some((t) => active.has(t));
-      card.hidden = !ok;
+      row.hidden = !ok;
       if (ok) shown++;
     }
-    if (countEl) countEl.textContent = shown + '개';
+    if (countEl) countEl.textContent = String(shown);
     if (emptyEl) emptyEl.hidden = shown !== 0;
   }
 
@@ -170,14 +270,14 @@ const exportName = `prompt-library-${today}.md`;
     });
   }
 
-  // Honor ?tag=... from a deep link (e.g. from an entry page).
+  // ?tag=... deep-link from entry pages
   const wanted = new URLSearchParams(location.search).get('tag');
   if (wanted && chips.some((c) => c.dataset.tag === wanted)) {
     active.add(wanted);
     apply();
   }
 
-  // ── 전체 .md 다운로드 ────────────────────────────────────────────
+  // 전체 .md 다운로드
   const exportBtn = document.getElementById('export-all');
   if (exportBtn) {
     exportBtn.addEventListener('click', () => {

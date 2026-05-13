@@ -1,26 +1,19 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import EntryCard from '../components/EntryCard.astro';
-import { firstHeadingAsTitle, firstParagraphAsSummary, prettyIdToTitle } from '../lib/meta';
+import { firstHeadingAsTitle, prettyIdToTitle } from '../lib/meta';
 
-const [checklists, required, library] = await Promise.all([
+const [checklists, library] = await Promise.all([
   getCollection('checklists'),
-  getCollection('prompts-required'),
   getCollection('library'),
 ]);
 
-const featuredChecklistIds = [
-  'security_checklist',
-  'repo_hardening',
-  'ai_code_review',
-  'new_project_checklist',
-];
-const featuredChecklists = featuredChecklistIds
-  .map((id) => checklists.find((e) => e.id.toLowerCase() === id))
-  .filter((e): e is NonNullable<typeof e> => Boolean(e));
-
-const requiredPrompts = required.slice().sort((a, b) => a.id.localeCompare(b.id));
+function findChecklist(id: string) {
+  return checklists.find((e) => e.id.toLowerCase() === id);
+}
+const onboarding = findChecklist('onboarding');
+const security = findChecklist('security_checklist');
+const newProject = findChecklist('new_project_checklist');
 
 const recentLibrary = library
   .slice()
@@ -29,129 +22,91 @@ const recentLibrary = library
     const tb = b.data.added ? b.data.added.getTime() : -Infinity;
     return tb - ta || a.data.title.localeCompare(b.data.title);
   })
-  .slice(0, 4);
+  .slice(0, 5);
+
+function title(e: { body?: string; id: string }) {
+  return firstHeadingAsTitle(e?.body ?? '', prettyIdToTitle(e?.id ?? ''));
+}
 ---
 
 <Base title="meticulous-monet — Claude Code 안전 사용 웹진">
-  <section class="pb-2">
-    <p class="text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
-      Claude Code · 보안 · 운영
+  <article class="prose">
+    <h1>meticulous-monet</h1>
+    <p>
+      Claude Code 를 <strong>여러 환경(집·회사·모바일)</strong> 과
+      <strong>여러 계정(개인·회사·공용)</strong> 에서 쓰는 사람들이 흔히 놓치는 원칙을
+      체크리스트와 프롬프트로 모아둔 웹진입니다.
     </p>
-    <h1 class="mt-3 text-[28px] sm:text-[34px] leading-[1.15] tracking-tight font-semibold">
-      여러 환경 · 여러 계정에서<br class="hidden sm:block" />
-      Claude Code를 안전하게 쓰기 위한 원칙.
-    </h1>
-    <p class="mt-5 text-[15px] sm:text-base text-[var(--color-muted)] leading-relaxed max-w-[62ch]">
-      집·회사·모바일을 오가며, 개인·회사·공용 계정이 섞이는 환경에서
-      레포에 개인정보와 인증정보를 섞지 않기 위한 체크리스트와 프롬프트를
-      한 곳에 모았습니다.
-    </p>
-    <div class="mt-6 flex flex-wrap gap-2 text-[13px]">
-      <a
-        href="/checklists/onboarding/"
-        class="inline-flex items-center gap-2 rounded-md bg-[var(--color-ink)] text-[var(--color-paper)] px-3.5 py-2 hover:opacity-90 transition"
-      >
-        15분 온보딩 시작
-        <span aria-hidden="true">→</span>
-      </a>
-      <a
-        href="/checklists/security_checklist/"
-        class="inline-flex items-center gap-2 rounded-md border border-[var(--color-line)] px-3.5 py-2 hover:border-[var(--color-ink)] transition"
-      >
-        마스터 체크리스트
-      </a>
-    </div>
-  </section>
+    <p>왼쪽 메뉴에서 원하는 문서를 골라 읽으시면 됩니다. 처음이라면 아래 순서대로.</p>
 
-  <section class="mt-14 border-t border-[var(--color-line)] pt-8">
-    <div class="flex items-baseline justify-between mb-4">
-      <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)]">핵심 체크리스트</h2>
-      <a href="/checklists/" class="text-[13px] text-[var(--color-muted)] hover:text-[var(--color-ink)]">
-        모두 보기 →
-      </a>
-    </div>
-    <div class="grid gap-3 sm:grid-cols-2">
-      {
-        featuredChecklists.map((entry) => (
-          <EntryCard
-            href={`/checklists/${entry.id}/`}
-            title={firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id))}
-            description={firstParagraphAsSummary(entry.body)}
-            tag="CHECKLIST"
-          />
-        ))
-      }
-    </div>
-  </section>
+    <h2>처음 오셨다면</h2>
+    <ol>
+      {onboarding && (
+        <li>
+          <a href={`/checklists/${onboarding.id}/`}>{title(onboarding)}</a> — 15분.
+        </li>
+      )}
+      {security && (
+        <li>
+          <a href={`/checklists/${security.id}/`}>{title(security)}</a> — 매 세션 확인 항목 마스터.
+        </li>
+      )}
+      {newProject && (
+        <li>
+          <a href={`/checklists/${newProject.id}/`}>{title(newProject)}</a> — 새 레포 만들기 전.
+        </li>
+      )}
+    </ol>
 
-  <section class="mt-14 border-t border-[var(--color-line)] pt-8">
-    <div class="flex items-baseline justify-between mb-4">
-      <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)]">매일 돌리는 필수 프롬프트</h2>
-      <a href="/prompts/" class="text-[13px] text-[var(--color-muted)] hover:text-[var(--color-ink)]">
-        모두 보기 →
-      </a>
-    </div>
-    <div class="grid gap-3 sm:grid-cols-2">
-      {
-        requiredPrompts.map((entry) => (
-          <EntryCard
-            href={`/prompts/required/${entry.id}/`}
-            title={firstHeadingAsTitle(entry.body, prettyIdToTitle(entry.id))}
-            description={firstParagraphAsSummary(entry.body)}
-            tag="REQUIRED"
-          />
-        ))
-      }
-    </div>
-  </section>
-
-  {
-    recentLibrary.length > 0 && (
-      <section class="mt-14 border-t border-[var(--color-line)] pt-8">
-        <div class="flex items-baseline justify-between mb-4">
-          <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)]">최근 모은 AI 프롬프트</h2>
-          <a href="/library/" class="text-[13px] text-[var(--color-muted)] hover:text-[var(--color-ink)]">
-            라이브러리 →
-          </a>
-        </div>
-        <div class="grid gap-3 sm:grid-cols-2">
-          {recentLibrary.map((entry) => (
-            <EntryCard
-              href={`/library/${entry.id}/`}
-              title={entry.data.title}
-              description={entry.data.summary || entry.data.note}
-              tag={entry.data.tags[0]?.toUpperCase()}
-            />
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  <section class="mt-14 border-t border-[var(--color-line)] pt-8">
-    <h2 class="text-[13px] uppercase tracking-[0.18em] text-[var(--color-muted)] mb-4">흐름</h2>
-    <ol class="space-y-2.5 text-[15px]">
-      <li class="flex gap-3">
-        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">01</span>
-        <span>
-          세션 시작 — <code class="font-mono text-[13.5px]">/startup</code> 또는
-          <code class="font-mono text-[13.5px]">/security-check</code> 로 환경·계정·가시성 확인
-        </span>
+    <h2>매일 쓰는 흐름</h2>
+    <ol>
+      <li>
+        세션 시작 — <code>/startup</code> 또는 <code>/security-check</code>
       </li>
-      <li class="flex gap-3">
-        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">02</span>
-        <span>커밋 직전 — <code class="font-mono text-[13.5px]">/pre-commit-check</code></span>
-      </li>
-      <li class="flex gap-3">
-        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">03</span>
-        <span>배포 직전 — <code class="font-mono text-[13.5px]">/pre-deploy-check</code></span>
-      </li>
-      <li class="flex gap-3">
-        <span class="shrink-0 w-6 text-[var(--color-muted)] font-mono text-[13px] pt-0.5">04</span>
-        <span>
-          이슈 발견 — <code class="font-mono text-[13.5px]">/update-checklist &lt;요약&gt;</code>
-        </span>
+      <li>커밋 직전 — <code>/pre-commit-check</code></li>
+      <li>배포 직전 — <code>/pre-deploy-check</code></li>
+      <li>새 이슈 발견 — <code>/update-checklist &lt;요약&gt;</code></li>
+      <li>
+        좋은 AI 프롬프트 발견 — <code>/add-prompt</code> → <a href="/library/">라이브러리</a> 에 저장
       </li>
     </ol>
-  </section>
+
+    {recentLibrary.length > 0 && (
+      <>
+        <h2>최근 모은 프롬프트</h2>
+        <ul>
+          {recentLibrary.map((e) => (
+            <li>
+              <a href={`/library/${e.id}/`}>{e.data.title}</a>
+              {e.data.tags.length > 0 && (
+                <span class="tag-row">
+                  {e.data.tags.map((t) => (
+                    <span class="tag">{t}</span>
+                  ))}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </article>
 </Base>
+
+<style>
+  .tag-row {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 0.1rem 0.45rem;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--color-ink) 7%, transparent);
+    color: var(--color-muted);
+  }
+</style>
