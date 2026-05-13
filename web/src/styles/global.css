@@ -3,14 +3,19 @@
 @theme {
   --font-sans: "Inter", "Pretendard", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-serif: "Noto Serif KR", "EB Garamond", "Apple SD Gothic Neo",
+    "Nanum Myeongjo", "Times New Roman", serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code",
     Menlo, Consolas, monospace;
 
-  --color-ink: #0a0a0a;
-  --color-paper: #fafaf9;
-  --color-muted: #6b6b6b;
-  --color-line: #e5e5e3;
-  --color-accent: #d64520;
+  /* "박물관 도록" 톤 — 모네 캔버스의 따뜻한 종이 + 약간 갈색 잉크 + vermillion 액센트.
+     Rouen Cathedral 색조를 기본 팔레트로 흡수. */
+  --color-ink: #15110a;        /* warm near-black */
+  --color-paper: #f5efe2;      /* warm cream */
+  --color-paper-deep: #ece4cf; /* 약간 더 짙은 종이 (메타박스용) */
+  --color-muted: #786a52;      /* 따뜻한 무채색 */
+  --color-line: #ddd0b1;       /* 따뜻한 hairline */
+  --color-accent: #d64520;     /* vermillion — Monet · Rouen */
   --color-accent-ink: #ffffff;
 }
 
@@ -35,29 +40,32 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* "엄격한 클로드모네" — 루앙 대성당 연작 등 모네 그림을 배경으로 깔기 위한 레이어.
-     web/public/monet-bg.jpg 가 있으면 보이고, 없으면 빈 페이퍼 색만 보임.
-     본문 가독성을 위해 매우 낮은 opacity + 채도 낮춤. */
+  /* "엄격한 클로드모네" — Rouen Cathedral 시리즈의 옅은 분위기 wash 를 다단 그라데이션으로.
+     이미지 한 장에 의존하지 않으므로 누락·CDN 사고에 안전하고 가볍다.
+     본문 가독성을 위해 채도·alpha 모두 조심스럽게. */
   .monet-bg {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-image: url('/monet-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.09;
-    filter: grayscale(0.35) contrast(0.95);
     pointer-events: none;
+    background:
+      /* 우상단의 따뜻한 햇빛 */
+      radial-gradient(ellipse 95% 60% at 82% 12%,
+        rgba(255, 195, 130, 0.42), transparent 62%),
+      /* 정오의 vermillion 하이라이트 띠 */
+      radial-gradient(ellipse 70% 38% at 58% 32%,
+        rgba(214, 69, 32, 0.18), transparent 62%),
+      /* 좌하단 라벤더 그림자 */
+      radial-gradient(ellipse 85% 60% at 15% 78%,
+        rgba(150, 138, 195, 0.22), transparent 62%),
+      /* 바닥의 슬레이트 푸른 기 */
+      radial-gradient(ellipse 120% 50% at 50% 100%,
+        rgba(108, 128, 158, 0.18), transparent 65%);
+    filter: saturate(0.95);
+    opacity: 0.7;
   }
   @media (max-width: 640px) {
-    .monet-bg { opacity: 0.06; }
-  }
-  @media (prefers-color-scheme: dark) {
-    .monet-bg {
-      opacity: 0.06;
-      filter: grayscale(0.5) brightness(0.8);
-    }
+    .monet-bg { opacity: 0.55; }
   }
 
   a {
@@ -79,17 +87,24 @@
   @media (prefers-color-scheme: dark) {
     :root {
       color-scheme: dark;
-      --color-ink: #f5f5f4;
-      --color-paper: #0b0b0b;
-      --color-muted: #9a9a98;
-      --color-line: #1f1f1e;
+      --color-ink: #ede5d2;
+      --color-paper: #0e0b08;
+      --color-paper-deep: #181410;
+      --color-muted: #968a72;
+      --color-line: #2a2419;
       --color-accent: #ff6a3d;
-      --color-accent-ink: #0b0b0b;
+      --color-accent-ink: #0e0b08;
+    }
+    .monet-bg {
+      opacity: 0.35;
+      filter: saturate(0.6) brightness(0.85);
     }
   }
 }
 
-/* Prose: 타이포 중심 · 군더더기 없는 읽기 화면 */
+/* ─────────────────────────────────────────────────────────────
+   Prose — 박물관 도록 본문 톤
+   ───────────────────────────────────────────────────────────── */
 .prose {
   max-width: 68ch;
 }
@@ -97,23 +112,26 @@
   margin-top: 1.05em;
 }
 .prose h1 {
-  font-size: clamp(1.6rem, 2.6vw + 1rem, 2.1rem);
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 2.6vw + 1rem, 2.25rem);
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
   font-weight: 700;
   margin-top: 0.3em;
 }
 .prose h2 {
-  font-size: 1.25rem;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
   line-height: 1.3;
   letter-spacing: -0.015em;
   font-weight: 700;
-  margin-top: 2em;
+  margin-top: 2.2em;
   padding-top: 1em;
   border-top: 1px solid var(--color-line);
 }
 .prose h3 {
-  font-size: 1.05rem;
+  font-family: var(--font-serif);
+  font-size: 1.08rem;
   font-weight: 700;
   margin-top: 1.8em;
 }
@@ -191,18 +209,72 @@
   font-weight: 700;
   border-bottom-color: var(--color-ink);
 }
+
+/* 도록 ornament — 단순 hairline 대신 다이아몬드. 단, 텍스트성 hr 만. */
 .prose hr {
-  margin: 2.2em 0;
+  border: 0;
+  margin: 2.4em 0;
+  text-align: center;
+  overflow: visible;
 }
+.prose hr::before {
+  content: "◇";
+  display: inline-block;
+  color: var(--color-muted);
+  font-size: 0.9em;
+  letter-spacing: 0.45em;
+  padding: 0 0.4em;
+}
+
 .prose input[type="checkbox"] {
   margin-right: 0.5em;
   accent-color: var(--color-accent);
 }
-
-/* Dark mode tweaks applied automatically via CSS vars above */
 
 @media (prefers-color-scheme: dark) {
   .prose pre {
     background: color-mix(in oklab, var(--color-ink) 10%, transparent);
   }
 }
+
+/* 페이지 타이틀에 일관성 있게 세리프를 입힐 때 쓰는 유틸. */
+.display-serif {
+  font-family: var(--font-serif);
+  letter-spacing: -0.022em;
+  font-weight: 700;
+}
+
+/* "Wall label" — 미술관 라벨 톤의 메타데이터 박스 (라이브러리 항목 등). */
+.wall-label {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.1rem;
+  margin-top: 1.1rem;
+  padding: 0.85rem 1rem;
+  background: color-mix(in oklab, var(--color-paper-deep) 70%, transparent);
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+.wall-label dt {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  padding-top: 0.15rem;
+  font-weight: 500;
+}
+.wall-label dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-ink);
+  word-break: break-word;
+}
+.wall-label dd a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-line);
+  text-underline-offset: 2px;
+}
+.wall-label dd a:hover { text-decoration-color: var(--color-accent); }

@@ -28,7 +28,7 @@ const charCount = body.replace(/\n/g, '').length;
   breadcrumb={[{ label: '라이브러리', href: '/library/' }, { label: title }]}
 >
   <article>
-    <h1 class="text-[24px] sm:text-[28px] leading-tight tracking-tight font-semibold">
+    <h1 class="display-serif text-[26px] sm:text-[30px] leading-[1.18]">
       {title}
     </h1>
 
@@ -45,16 +45,14 @@ const charCount = body.replace(/\n/g, '').length;
       }
     </div>
 
-    <dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[13px] text-[var(--color-muted)]">
+    <dl class="wall-label">
       {
         source && (
           <>
             <dt>출처</dt>
             <dd>
               {isUrl ? (
-                <a href={source} rel="noreferrer noopener" class="underline hover:text-[var(--color-ink)] break-all">
-                  {source}
-                </a>
+                <a href={source} rel="noreferrer noopener">{source}</a>
               ) : (
                 source
               )}
