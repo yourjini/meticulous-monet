@@ -23,6 +23,24 @@ for (const e of entries) for (const t of e.data.tags) tagCount.set(t, (tagCount.
 const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
 const today = new Date().toISOString().slice(0, 10);
+
+// "+ 새 프롬프트" — GitHub web editor 를 새 파일 만들기 모드로 연다.
+// 프론트매터 템플릿이 미리 채워진 채로 열리고, 사용자가 작성·커밋하면
+// Vercel git 연동이 자동 배포한다. (정적 사이트라 폼 백엔드가 없어도 추가가 됨)
+const REPO = 'yourjini/meticulous-monet';
+const BRANCH = 'claude/security-checklist-setup-HSGtg';
+const tmpl =
+  '---\n' +
+  'title: \n' +
+  'tags: [개발]\n' +
+  'source: \n' +
+  `added: ${today}\n` +
+  'model: any\n' +
+  '---\n\n';
+const newPromptUrl =
+  `https://github.com/${REPO}/new/${BRANCH}` +
+  `?filename=library%2Funtitled.md&value=${encodeURIComponent(tmpl)}`;
+
 const SEP = '\n\n<!-- ─────────────────────────────────────────── -->\n\n';
 const combined =
   `# AI 프롬프트 라이브러리 — 전체 내보내기 (${entries.length}개 · ${today})\n` +
@@ -39,8 +57,9 @@ const exportName = `prompt-library-${today}.md`;
     <p class="lead">
       쓸 만한 AI 프롬프트를 발견할 때마다 모아둔 곳. 왼쪽 트리에서 바로 클릭해도 되고,
       아래 태그로 좁힌 뒤 골라도 됩니다. 클릭하면 전문을 보고 그대로 복사하거나
-      <code>.md</code> 로 내보낼 수 있어요. 추가는 <code>/add-prompt</code> 또는
-      <code>library/</code> 에 직접.
+      <code>.md</code> 로 내보낼 수 있어요. <strong>추가</strong>는 오른쪽
+      <em>+ 새 프롬프트</em> 버튼(GitHub web editor 로 열림) 또는 Claude Code 에서
+      <code>/add-prompt</code>.
     </p>
 
     <div class="filter-bar">
@@ -54,9 +73,20 @@ const exportName = `prompt-library-${today}.md`;
           </button>
         ))}
       </div>
-      <button type="button" id="export-all" class="export-btn">
-        전체 .md 다운로드
-      </button>
+      <div class="action-group">
+        <a
+          href={newPromptUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="add-btn"
+          title="GitHub web editor 로 새 파일 만들기"
+        >
+          + 새 프롬프트
+        </a>
+        <button type="button" id="export-all" class="export-btn">
+          전체 .md 다운로드
+        </button>
+      </div>
     </div>
 
     <p class="result-line">
@@ -153,6 +183,12 @@ const exportName = `prompt-library-${today}.md`;
   }
   .tag-chip .cnt { opacity: 0.6; margin-left: 0.15rem; }
 
+  .action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .add-btn,
   .export-btn {
     appearance: none;
     cursor: pointer;
@@ -162,8 +198,13 @@ const exportName = `prompt-library-${today}.md`;
     background: transparent;
     color: var(--color-ink);
     padding: 0.3rem 0.7rem;
+    text-decoration: none;
+    line-height: 1.4;
   }
+  .add-btn { font-weight: 600; }
+  .add-btn:hover,
   .export-btn:hover { border-color: var(--color-ink); }
+  .add-btn:hover { color: var(--color-accent); }
 
   .result-line {
     margin: 0.25rem 0 0.65rem;
