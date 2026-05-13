@@ -19,6 +19,13 @@ const fileName = `${entry.id.split('/').pop()}.md`;
 const dateStr = fmtDate(added);
 const isUrl = !!source && /^https?:\/\//i.test(source);
 const charCount = body.replace(/\n/g, '').length;
+
+// 편집·삭제 — GitHub web editor 로 열기 (frontmatter 통째로 수정 가능 = 태그·설명·본문 다).
+const REPO = 'yourjini/meticulous-monet';
+const BRANCH = 'claude/security-checklist-setup-HSGtg';
+const filePath = `library/${entry.id}.md`;
+const editUrl = `https://github.com/${REPO}/edit/${BRANCH}/${filePath}`;
+const deleteUrl = `https://github.com/${REPO}/delete/${BRANCH}/${filePath}`;
 ---
 
 <Base
@@ -73,21 +80,32 @@ const charCount = body.replace(/\n/g, '').length;
       )
     }
 
-    <div class="mt-5 flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        id="copy-prompt"
-        class="inline-flex items-center gap-2 rounded-md bg-[var(--color-ink)] text-[var(--color-paper)] px-3.5 py-2 text-[13px] hover:opacity-90 transition"
-      >
-        <span data-copy-label>프롬프트 복사</span>
-      </button>
-      <button
-        type="button"
-        id="download-md"
-        class="inline-flex items-center gap-2 rounded-md border border-[var(--color-line)] px-3.5 py-2 text-[13px] hover:border-[var(--color-ink)] transition"
-      >
-        .md 저장
-      </button>
+    <div class="action-bar">
+      <div class="actions-primary">
+        <button
+          type="button"
+          id="copy-prompt"
+          class="btn btn-filled"
+        >
+          <span data-copy-label>프롬프트 복사</span>
+        </button>
+        <button
+          type="button"
+          id="download-md"
+          class="btn btn-outline"
+        >
+          .md 저장
+        </button>
+      </div>
+      <div class="actions-meta">
+        <a href={editUrl} target="_blank" rel="noopener noreferrer" class="meta-link">
+          GitHub 에서 편집
+        </a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href={deleteUrl} target="_blank" rel="noopener noreferrer" class="meta-link danger" title="GitHub 확인 단계를 거쳐 삭제">
+          삭제
+        </a>
+      </div>
     </div>
 
     <pre id="prompt-text" class="prompt-text mt-4">{body}</pre>
@@ -106,6 +124,67 @@ const charCount = body.replace(/\n/g, '').length;
     border-radius: 8px;
     padding: 1rem 1.1rem;
     overflow-x: auto;
+  }
+
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 1.25rem 0 0;
+  }
+  .actions-primary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .btn {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.3;
+    transition: opacity 0.15s, border-color 0.15s;
+  }
+  .btn-filled {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border: 1px solid var(--color-ink);
+  }
+  .btn-filled:hover { opacity: 0.9; }
+  .btn-outline {
+    background: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-line);
+  }
+  .btn-outline:hover { border-color: var(--color-ink); }
+
+  .actions-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .actions-meta .dot { opacity: 0.6; }
+  .meta-link {
+    color: var(--color-muted);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--color-line);
+    padding-bottom: 1px;
+  }
+  .meta-link:hover {
+    color: var(--color-ink);
+    border-bottom-color: var(--color-ink);
+  }
+  .meta-link.danger:hover {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
   }
 </style>
 
