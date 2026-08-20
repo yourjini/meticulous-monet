@@ -16,7 +16,7 @@ const looseFrontmatter = z
 export const collections = {
   checklists: defineCollection({
     loader: glob({
-      pattern: ['SECURITY_CHECKLIST.md', 'NEW_PROJECT_CHECKLIST.md', 'REPO_HARDENING.md', 'AI_CODE_REVIEW.md', 'MULTI_ENV_GUIDE.md', 'ONBOARDING.md'],
+      pattern: ['SECURITY_CHECKLIST.md', 'NEW_PROJECT_CHECKLIST.md', 'REPO_HARDENING.md', 'AI_CODE_REVIEW.md', 'MULTI_ENV_GUIDE.md', 'ONBOARDING.md', 'MEMOS.md'],
       base: docRoot,
     }),
     schema: looseFrontmatter,
